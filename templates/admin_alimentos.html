@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Alimentos · Admin{% endblock %}
+{% block content %}
+<div class="row between"><h1>Alimentos y platillos</h1><a class="btn" href="{{ url_for('admin_form') }}">Nuevo alimento</a></div>
+<form method="get" class="row" style="margin-bottom:1rem"><input name="q" value="{{ q }}" placeholder="Buscar por nombre" aria-label="Buscar" style="flex:1"><button class="btn ghost">Buscar</button></form>
+<div class="card tbl"><table>
+<tr><th>Nombre</th><th>Tipo</th><th>kcal</th><th>Prot.</th><th>Carb.</th><th>Grasa</th><th>Etiquetas</th><th></th></tr>
+{% for a in alimentos %}
+<tr><td>{{ a.nombre }}</td><td><span class="tag {{ a.tipo }}">{{ a.tipo }}</span></td><td>{{ a.calorias|n0 }}</td><td>{{ a.proteinas|n1 }}</td><td>{{ a.carbohidratos|n1 }}</td><td>{{ a.grasas|n1 }}</td>
+<td>{% for e in a.etiquetas or [] %}<span class="tag">{{ e }}</span>{% endfor %}</td>
+<td class="row"><a class="btn ghost sm" href="{{ url_for('admin_form', aid=a.id) }}">Editar</a>
+<form method="post" action="{{ url_for('admin_eliminar', aid=a.id) }}" onsubmit="return confirm('¿Eliminar {{ a.nombre|e }}?')"><button class="btn danger sm">Eliminar</button></form></td></tr>
+{% else %}<tr><td colspan="8" class="muted">No hay alimentos. Crea el primero con “Nuevo alimento”.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

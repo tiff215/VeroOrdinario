@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Seguimiento · NutriTrack{% endblock %}
+{% block content %}
+<div class="row between"><h1>Seguimiento</h1>
+  <form method="get"><select name="dias" aria-label="Periodo" onchange="this.form.submit()" style="width:auto">
+    {% for d in (7,14,30) %}<option value="{{ d }}" {{ 'selected' if d==dias }}>Últimos {{ d }} días</option>{% endfor %}</select></form></div>
+{% if not hay_datos %}
+<div class="card">Aún no hay datos en este periodo, o no has configurado objetivos. <a href="{{ url_for('buscar') }}">Registra una comida</a> o <a href="{{ url_for('objetivos') }}">define tus objetivos</a>.</div>
+{% else %}
+<div class="card" style="margin-bottom:1rem">
+  <h2>Tu promedio</h2>
+  <p>Consumes en promedio <b>{{ tend.promedio|n0 }} kcal</b> al día; tu meta es <b>{{ tend.meta|n0 }} kcal</b>.
+  {% if tend.desviacion|float > 0 %}Estás <b>{{ tend.desviacion|n0 }} kcal por encima</b>.{% elif tend.desviacion|float < 0 %}Estás <b>{{ (tend.desviacion|float * -1)|n0 }} kcal por debajo</b>.{% else %}Vas justo en la meta.{% endif %}</p>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Calorías por día vs. meta</h2><div class="chart"><canvas id="cTend"></canvas></div></div>
+  <div class="card"><h2>Cumplimiento diario (%)</h2><div class="chart"><canvas id="cCumpl"></canvas></div></div>
+  <div class="card"><h2>Distribución de macronutrientes</h2><div class="chart"><canvas id="cMacros"></canvas></div></div>
+</div>
+<script type="application/json" id="chart-data">{{ chart|tojson }}</script>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if hay_datos %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/seguimiento.js') }}"></script>{% endif %}{% endblock %}

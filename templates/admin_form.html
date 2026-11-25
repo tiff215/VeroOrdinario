@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% block title %}{{ 'Editar' if a else 'Nuevo' }} alimento · Admin{% endblock %}
+{% block content %}
+<h1>{{ 'Editar' if a else 'Nuevo' }} alimento</h1>
+<form method="post" class="card grid" style="max-width:720px">
+  <div class="fields">
+    <div><label for="nombre">Nombre</label><input id="nombre" name="nombre" required maxlength="120" value="{{ a.nombre|default('') }}"></div>
+    <div><label for="tipo">Tipo</label><select id="tipo" name="tipo">
+      <option value="simple" {{ 'selected' if a.tipo=='simple' }}>Alimento simple</option>
+      <option value="platillo" {{ 'selected' if a.tipo=='platillo' }}>Platillo (compuesto)</option></select></div>
+    <div><label for="porcion_g">Porción (g)</label><input id="porcion_g" name="porcion_g" type="number" min="1" step="any" value="{{ a.porcion_g|default(100) }}"></div>
+  </div>
+  <div id="simple-box"><p class="muted" style="margin-top:0">Valores nutricionales por porción.</p>
+    <div class="fields">
+      {% for k, n in [('calorias','Calorías (kcal)'),('proteinas','Proteínas (g)'),('carbohidratos','Carbohidratos (g)'),('grasas','Grasas (g)'),('fibra','Fibra (g)')] %}
+      <div><label for="{{ k }}">{{ n }}</label><input id="{{ k }}" name="{{ k }}" type="number" min="0" step="any" value="{{ a[k]|default(0) }}"></div>{% endfor %}
+    </div></div>
+  <div id="platillo-box" hidden>
+    <p class="muted" style="margin-top:0">Los valores nutricionales se calculan sumando los ingredientes.</p>
+    <div id="rows">
+      {% for c in a.componentes or [] %}
+      <div class="row" style="margin-bottom:.5rem"><select name="comp_id" aria-label="Ingrediente" style="flex:1">
+        {% for s in simples %}<option value="{{ s.id }}" {{ 'selected' if s.id==c.id }}>{{ s.nombre }}</option>{% endfor %}</select>
+        <input name="comp_cant" type="number" min="0.1" step="any" value="{{ c.cantidad }}" aria-label="Cantidad" style="width:90px">
+        <button type="button" class="btn ghost sm rm">Quitar</button></div>
+      {% endfor %}
+    </div>
+    <button type="button" id="add-row" class="btn ghost sm">Agregar ingrediente</button>
+  </div>
+  <template id="row-tpl"><div class="row" style="margin-bottom:.5rem"><select name="comp_id" aria-label="Ingrediente" style="flex:1">
+    {% for s in simples %}<option value="{{ s.id }}">{{ s.nombre }}</option>{% endfor %}</select>
+    <input name="comp_cant" type="number" min="0.1" step="any" value="1" aria-label="Cantidad" style="width:90px">
+    <button type="button" class="btn ghost sm rm">Quitar</button></div></template>
+  <div><label for="etiquetas">Etiquetas (separadas por coma)</label>
+    <input id="etiquetas" name="etiquetas" placeholder="vegano, sin gluten, fortificado" value="{{ (a.etiquetas or [])|join(', ') }}"></div>
+  <div class="row"><button class="btn">Guardar alimento</button><a class="btn ghost" href="{{ url_for('admin_alimentos') }}">Cancelar</a></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin.js') }}"></script>{% endblock %}

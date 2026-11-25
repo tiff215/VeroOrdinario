@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Mis objetivos · NutriTrack{% endblock %}
+{% block content %}
+<h1>Mis objetivos diarios</h1>
+<p class="muted">Puedes cambiarlos cuando quieras. Se conserva el historial.</p>
+<form method="post" class="card grid" style="max-width:560px">
+  <div class="fields">
+    <div><label for="calorias">Calorías (kcal)</label><input id="calorias" name="calorias" type="number" min="1" step="any" required value="{{ obj.calorias|default('') }}"></div>
+    <div><label for="proteinas">Proteínas (g)</label><input id="proteinas" name="proteinas" type="number" min="1" step="any" required value="{{ obj.proteinas|default('') }}"></div>
+    <div><label for="carbohidratos">Carbohidratos (g)</label><input id="carbohidratos" name="carbohidratos" type="number" min="1" step="any" required value="{{ obj.carbohidratos|default('') }}"></div>
+    <div><label for="grasas">Grasas (g)</label><input id="grasas" name="grasas" type="number" min="1" step="any" required value="{{ obj.grasas|default('') }}"></div>
+  </div>
+  <button class="btn" style="justify-self:start">Guardar objetivos</button>
+</form>
+{% endblock %}

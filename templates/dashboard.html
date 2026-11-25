@@ -1,0 +1,52 @@
+{% extends "base.html" %}{% block title %}Mi día · NutriTrack{% endblock %}
+{% block content %}
+<div class="row between"><h1>Mi día</h1>
+  <form method="get" class="row"><label for="fecha" class="muted" style="margin:0">Fecha</label>
+    <input id="fecha" type="date" name="fecha" value="{{ fecha }}" style="width:auto" onchange="this.form.submit()"></form></div>
+
+{% if not obj %}
+<div class="card" style="margin-bottom:1rem">Aún no tienes objetivos. <a href="{{ url_for('objetivos') }}">Configura tus metas diarias</a> para ver tu comparación.</div>
+{% endif %}
+
+<div class="grid g2">
+  <section class="card row" aria-label="Comparación con tus objetivos">
+    <div class="ring {{ 'over' if pct.calorias > 110 }}" style="--p:{{ [pct.calorias,100]|min }}">
+      <div><b>{{ tot.calorias|n0 }}</b><span class="muted">{% if obj %}de {{ obj.calorias|n0 }} kcal{% else %}kcal{% endif %}</span></div>
+    </div>
+    <div style="flex:1;min-width:180px" class="grid">
+      {% for k, nombre in [('proteinas','Proteínas'),('carbohidratos','Carbohidratos'),('grasas','Grasas')] %}
+      <div><div class="row between muted"><span>{{ nombre }}</span><span>{{ tot[k]|n0 }}{% if obj %} / {{ obj[k]|n0 }}{% endif %} g</span></div>
+        <div class="bar {{ 'over' if pct[k] > 110 }}" style="--p:{{ [pct[k],100]|min }}"><i></i></div></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card" aria-label="Lectura del día">
+    <h2>Cómo vas</h2>
+    {% if not obj %}<p class="muted">Sin objetivos configurados.</p>
+    {% elif tot.calorias == 0 %}<p>Todavía no registras nada hoy. Agrega tu primera comida.</p>
+    {% else %}
+      {% set dif = tot.calorias - obj.calorias|float %}
+      <p>{% if pct.calorias > 110 %}Superaste tu meta por <b>{{ dif|n0 }} kcal</b>.
+         {% elif pct.calorias >= 95 %}Alcanzaste tu meta calórica.
+         {% else %}Te faltan <b>{{ (-dif)|n0 }} kcal</b> para tu meta.{% endif %}</p>
+    {% endif %}
+    <a class="btn ghost sm" href="{{ url_for('seguimiento') }}">Ver tendencias</a>
+  </section>
+</div>
+
+<section class="card" style="margin-top:1rem">
+  {% for k, nombre in momentos %}
+  <div class="meal">
+    <div class="row between"><h2 style="margin:0">{{ nombre }}</h2>
+      <a class="btn ghost sm" href="{{ url_for('buscar', momento=k, fecha=fecha) }}">Agregar</a></div>
+    {% for r in grupos[k] %}
+    <div class="item"><span>{{ r.alimento }} <span class="muted">× {{ r.porciones|n1 }}</span></span>
+      <span class="row"><span class="muted">{{ r.calorias|n0 }} kcal</span>
+        <form method="post" action="{{ url_for('eliminar_registro', rid=r.id) }}"><input type="hidden" name="fecha" value="{{ fecha }}">
+          <button class="btn ghost sm" aria-label="Quitar {{ r.alimento }}">Quitar</button></form></span></div>
+    {% else %}<p class="muted" style="margin:.4rem 0 0">Sin registros.</p>{% endfor %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

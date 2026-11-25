@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% block title %}Buscar alimentos · NutriTrack{% endblock %}
+{% block content %}
+<h1>Buscar alimentos</h1>
+<form method="get" class="row" style="margin-bottom:1rem">
+  <input type="hidden" name="momento" value="{{ momento }}"><input type="hidden" name="fecha" value="{{ fecha }}">
+  <input name="q" value="{{ q }}" placeholder="Ej. pollo, avena, tacos…" aria-label="Buscar" style="flex:1;min-width:200px" autofocus>
+  <button class="btn">Buscar</button>
+</form>
+<div class="grid g2">
+{% for a in alimentos %}
+  <article class="card">
+    <div class="row between"><h2 style="margin:0">{{ a.nombre }}</h2><span class="tag {{ a.tipo }}">{{ 'Platillo' if a.tipo=='platillo' else 'Alimento' }}</span></div>
+    <p class="muted" style="margin:.2rem 0 .6rem">Por porción{% if a.porcion_g %} ({{ a.porcion_g|n0 }} g){% endif %}</p>
+    <table><tr><th>kcal</th><th>Prot.</th><th>Carb.</th><th>Grasa</th><th>Fibra</th></tr>
+      <tr><td>{{ a.calorias|n0 }}</td><td>{{ a.proteinas|n1 }} g</td><td>{{ a.carbohidratos|n1 }} g</td><td>{{ a.grasas|n1 }} g</td><td>{{ a.fibra|n1 }} g</td></tr></table>
+    <p>{% for e in a.etiquetas or [] %}<span class="tag">{{ e }}</span>{% endfor %}</p>
+    {% if a.componentes %}<details><summary>Ingredientes</summary><ul>{% for c in a.componentes %}<li>{{ c.nombre }} <span class="muted">× {{ c.cantidad|n1 }}</span></li>{% endfor %}</ul></details>{% endif %}
+    <form method="post" action="{{ url_for('registrar') }}" class="row" style="margin-top:.6rem">
+      <input type="hidden" name="alimento_id" value="{{ a.id }}"><input type="hidden" name="fecha" value="{{ fecha }}">
+      <select name="momento" aria-label="Momento" style="flex:1">{% for k, n in momentos %}<option value="{{ k }}" {{ 'selected' if k==momento }}>{{ n }}</option>{% endfor %}</select>
+      <input name="porciones" type="number" min="0.25" step="0.25" value="1" aria-label="Porciones" style="width:80px">
+      <button class="btn sm">Registrar</button>
+    </form>
+  </article>
+{% else %}
+  <p class="muted">{% if q %}No encontramos “{{ q }}”. Prueba con otra palabra.{% else %}Escribe el nombre de un alimento o platillo para ver sus valores nutricionales.{% endif %}</p>
+{% endfor %}
+</div>
+{% endblock %}

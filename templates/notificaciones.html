@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Avisos · NutriTrack{% endblock %}
+{% block content %}
+<h1>Avisos</h1>
+<div class="card">
+{% for n in notis %}
+  <div class="item"><span {% if not n.leida %}style="font-weight:600"{% endif %}>{{ n.mensaje }}<br><span class="muted">{{ n.creada_en[:16]|replace('T',' ') }}</span></span>
+  {% if not n.leida %}<form method="post" action="{{ url_for('marcar_leida', nid=n.id) }}"><button class="btn ghost sm">Marcar como leído</button></form>{% endif %}</div>
+{% else %}<p class="muted">No tienes avisos. Aquí aparecerán tus logros, excesos y registros pendientes.</p>{% endfor %}
+</div>
+{% endblock %}

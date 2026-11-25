@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}NutriTrack{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% macro flashes() %}{% with m = get_flashed_messages(with_categories=true) %}{% for c, t in m %}<div class="flash {{ c }}" role="alert">{{ t }}</div>{% endfor %}{% endwith %}{% endmacro %}
+{% if session.usuario %}
+{% set ep = request.endpoint %}
+<div class="shell">
+  <nav class="side" aria-label="Principal">
+    <div class="brand">NutriTrack</div>
+    {% if session.usuario.rol == 'cliente' %}
+      <a href="{{ url_for('dashboard') }}" class="{{ 'on' if ep=='dashboard' }}">Mi día</a>
+      <a href="{{ url_for('buscar') }}" class="{{ 'on' if ep=='buscar' }}">Buscar alimentos</a>
+      <a href="{{ url_for('seguimiento') }}" class="{{ 'on' if ep=='seguimiento' }}">Seguimiento</a>
+      <a href="{{ url_for('objetivos') }}" class="{{ 'on' if ep=='objetivos' }}">Mis objetivos</a>
+      <a href="{{ url_for('notificaciones') }}" class="{{ 'on' if ep=='notificaciones' }}">Avisos {% if pendientes %}<span class="badge">{{ pendientes }}</span>{% endif %}</a>
+    {% else %}
+      <a href="{{ url_for('admin_alimentos') }}" class="{{ 'on' if ep in ('admin_alimentos','admin_form') }}">Alimentos y platillos</a>
+      <a href="{{ url_for('admin_usuarios') }}" class="{{ 'on' if ep=='admin_usuarios' }}">Usuarios</a>
+    {% endif %}
+    <div class="who">{{ session.usuario.nombre }} ({{ session.usuario.rol }})</div>
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+  </nav>
+  <main>
+    {{ flashes() }}
+    {% block content %}{% endblock %}
+    <p class="disclaimer">Esta información es orientativa y no sustituye la atención de un nutriólogo.</p>
+  </main>
+</div>
+{% else %}
+<main class="auth">{{ flashes() }}{% block auth %}{% endblock %}
+<p class="disclaimer">Esta información es orientativa y no sustituye la atención de un nutriólogo.</p></main>
+{% endif %}
+{% block scripts %}{% endblock %}
+</body></html>

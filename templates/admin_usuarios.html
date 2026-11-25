@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Usuarios · Admin{% endblock %}
+{% block content %}
+<h1>Usuarios</h1>
+<div class="card tbl"><table><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Alta</th></tr>
+{% for u in usuarios %}<tr><td>{{ u.nombre }}</td><td>{{ u.email }}</td><td><span class="tag">{{ u.rol }}</span></td><td>{{ (u.creado_en or '')[:10] }}</td></tr>
+{% else %}<tr><td colspan="4" class="muted">No hay usuarios registrados.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}
